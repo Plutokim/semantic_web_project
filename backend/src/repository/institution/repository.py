@@ -21,26 +21,36 @@ PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wd: <http://www.wikidata.org/entity/>
 
-SELECT DISTINCT ?itemLabel ?typeLabel ?locationLabel ?founded ?website ?coordinate ?image ?studentCount ?address
+SELECT ?item
+       (SAMPLE(?itemLabel_) AS ?itemLabel)
+       (SAMPLE(?typeLabel_) AS ?typeLabel)
+       (SAMPLE(?locationLabel_) AS ?locationLabel)
+       (SAMPLE(?founded_) AS ?founded)
+       (SAMPLE(?website_) AS ?website)
+       (SAMPLE(?coordinate_) AS ?coordinate)
+       (SAMPLE(?image_) AS ?image)
+       (SAMPLE(?studentCount_) AS ?studentCount)
+       (SAMPLE(?address_) AS ?address)
 WHERE {
   ?item a wd:Q2385804 ;
         wdt:P17 wd:Q212 ;
         wdt:P131 ?location ;
         wdt:P31 ?type .
 
-  OPTIONAL { ?item wdt:P571 ?founded . }
-  OPTIONAL { ?item wdt:P856 ?website . }
-  OPTIONAL { ?item wdt:P625 ?coordinate . }
-  OPTIONAL { ?item wdt:P18 ?image . }
-  OPTIONAL { ?item wdt:P2196 ?studentCount . }
-  OPTIONAL { ?item wdt:P6375 ?address . }
-  
-  OPTIONAL { ?item rdfs:label ?itemLabel . }
-  OPTIONAL { ?type rdfs:label ?typeLabel . }
-  OPTIONAL { ?location rdfs:label ?locationLabel . }
-  
-  FILTER(!STRSTARTS(?itemLabel, "Q"))
+  OPTIONAL { ?item wdt:P571 ?founded_ . }
+  OPTIONAL { ?item wdt:P856 ?website_ . }
+  OPTIONAL { ?item wdt:P625 ?coordinate_ . }
+  OPTIONAL { ?item wdt:P18 ?image_ . }
+  OPTIONAL { ?item wdt:P2196 ?studentCount_ . }
+  OPTIONAL { ?item wdt:P6375 ?address_ . }
+
+  OPTIONAL { ?item rdfs:label ?itemLabel_ . }
+  OPTIONAL { ?type rdfs:label ?typeLabel_ . }
+  OPTIONAL { ?location rdfs:label ?locationLabel_ . }
+
+  FILTER(!STRSTARTS(?itemLabel_, "Q"))
 }
+GROUP BY ?item
         """
         try:
             resp = self.client.exec(self.ds_name, _query)

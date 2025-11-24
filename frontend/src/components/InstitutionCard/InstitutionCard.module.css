@@ -1,0 +1,45 @@
+.card {
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.25rem;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+  min-height: 160px;
+  height: 100%;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.chip {
+  background: #f3f4f6;
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.85rem;
+  color: #374151;
+}
+
+.city {
+  background: #e0f2fe;
+  color: #0f172a;
+}
+
+.type {
+  background: #ede9fe;
+  color: #5b21b6;
+  text-transform: capitalize;
+}
