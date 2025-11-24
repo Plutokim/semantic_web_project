@@ -1,0 +1,67 @@
+.screen {
+  min-height: 100vh;
+  background: #f4f6fb;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.filters {
+  position: sticky;
+  top: 1.5rem;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.subtitle {
+  color: #475569;
+}
+
+.filterSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.filterTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #5b6478;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .filters {
+    position: static;
+  }
+}
+
