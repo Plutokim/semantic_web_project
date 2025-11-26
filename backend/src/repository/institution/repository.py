@@ -1,4 +1,6 @@
-from core.institution import build_institution
+from typing import Literal
+
+from utils.sparql.parser import parse_sparql_binding
 from datasource.fuseki.source import Fuseki
 
 
@@ -15,7 +17,7 @@ class InstitutionRepository:
             raise Exception(
                 f"Error inserting educational institution data: {str(e)}")
 
-    def find_by_filter(self, search_text: str = None, cities: list = None, inst_type: list = None):
+    def find_by_filter(self, item_id: str = None, search_text: str = None, cities: list = None, inst_type: list = None):
         filters = []
 
         if search_text:
@@ -26,6 +28,9 @@ class InstitutionRepository:
 
         if inst_type:
             filters.append(f'VALUES ?type { {" ".join([f"wd: {i}" for i in inst_type])} }')
+
+        if item_id:
+            filters.append(f'FILTER(?item = wd:{item_id})')
 
         _query = f"""
                         PREFIX wdt: <http://www.wikidata.org/prop/direct/>
@@ -69,12 +74,42 @@ class InstitutionRepository:
             resp = self.client.exec(self.ds_name, _query)
             keys = resp.get("head", {}).get("vars", [])
             results = resp.get("results", {}).get("bindings", [])
-            formatted_results = [build_institution(
+            formatted_results = [parse_sparql_binding(
                 keys, result) for result in results]
             return formatted_results
         except Exception as e:
             raise Exception(f"Error finding all institutions: {str(e)}")
 
+    def get_filters_data(self, entity: Literal['location', 'type']):
+        _query = f"""
+                        PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+                        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                        PREFIX wd: <http://www.wikidata.org/entity/>
+        
+                        SELECT 
+                            DISTINCT 
+                            (STRAFTER(STR(?{entity}), "entity/") AS ?{entity}Id)
+                            ?{entity}Label
+                        WHERE {{
+                          ?item a wd:Q2385804 ;
+                                wdt:P17 wd:Q212 ;
+                                wdt:P131 ?location ;
+                                wdt:P31 ?type .
+           
+                        ?{entity} rdfs:label ?{entity}Label . 
+                        
+                        FILTER(LANG(?{entity}Label) = "uk")
+                }}
+        """
+        try:
+            resp = self.client.exec(self.ds_name, _query)
+            keys = resp.get("head", {}).get("vars", [])
+            results = resp.get("results", {}).get("bindings", [])
+            formatted_results = [parse_sparql_binding(
+                keys, result) for result in results]
+            return formatted_results
+        except Exception as e:
+            raise Exception(f"Error retrieving filters: {str(e)}")
 
 def new_institution_repository(client: Fuseki, ds_name: str = "institutions", graph_uri: str = "default"):
     return InstitutionRepository(client, ds_name, graph_uri)
