@@ -16,12 +16,13 @@ def new_app(ctx: Context):
         cities_param = request.args.get('city')
         cities = cities_param.split(',') if cities_param else None
 
-        inst_type = request.args.get('type')
+        inst_types_param = request.args.get('type')
+        inst_types = inst_types_param.split(',') if inst_types_param else None
 
         institutions = ctx.institution_usecase.search(
             search_text=search_text,
             cities=cities,
-            inst_type=inst_type
+            inst_type=inst_types
         )
 
         return jsonify({"institutions": institutions})

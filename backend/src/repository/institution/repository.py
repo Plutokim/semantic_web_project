@@ -24,10 +24,10 @@ class InstitutionRepository:
             filters.append(f'FILTER(CONTAINS(LCASE(?itemLabel_), LCASE("{search_text}")))')
 
         if cities:
-            filters.append(f'VALUES ?location { {" ".join([f"wd: {c}" for c in cities])} }')
+            filters.append(f'VALUES ?location {{ {" ".join([f"wd:{c}" for c in cities])} }}')
 
         if inst_type:
-            filters.append(f'VALUES ?type { {" ".join([f"wd: {i}" for i in inst_type])} }')
+            filters.append(f'VALUES ?type {{ {" ".join([f"wd:{i}" for i in inst_type])} }}')
 
         if item_id:
             filters.append(f'FILTER(?item = wd:{item_id})')
@@ -78,7 +78,7 @@ class InstitutionRepository:
                 keys, result) for result in results]
             return formatted_results
         except Exception as e:
-            raise Exception(f"Error finding all institutions: {str(e)}")
+            raise Exception(f"Error finding institutions: {str(e)}")
 
     def get_filters_data(self, entity: Literal['location', 'type']):
         _query = f"""
