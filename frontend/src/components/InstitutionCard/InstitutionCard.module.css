@@ -1,3 +1,18 @@
+.link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.link:hover {
+  transform: translateY(-2px);
+}
+
+.link:hover .card {
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.1);
+}
+
 .card {
   border: 1px solid #e2e8f0;
   border-radius: 16px;
@@ -10,6 +25,7 @@
   min-height: 160px;
   height: 100%;
   justify-content: space-between;
+  cursor: pointer;
 }
 
 .title {

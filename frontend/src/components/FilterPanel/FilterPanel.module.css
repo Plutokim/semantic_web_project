@@ -24,3 +24,23 @@
   gap: 0.5rem;
 }
 
+.showMoreButton {
+  width: 100%;
+  background: #fff;
+  border: 1px solid #c2c8d6;
+  border-radius: 8px;
+  padding: 0.625rem 1rem;
+  font-size: 0.9rem;
+  color: #5b6478;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+.showMoreButton:hover {
+  border-color: #7c3aed;
+  color: #7c3aed;
+  background: #f5f0ff;
+}
+
