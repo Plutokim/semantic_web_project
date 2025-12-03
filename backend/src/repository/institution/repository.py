@@ -88,17 +88,17 @@ class InstitutionRepository:
         
                         SELECT 
                             DISTINCT 
-                            (STRAFTER(STR(?{entity}), "entity/") AS ?{entity}Id)
-                            ?{entity}Label
+                            (STRAFTER(STR(?{entity}), "entity/") AS ?id)
+                            ?label
                         WHERE {{
                           ?item a wd:Q2385804 ;
                                 wdt:P17 wd:Q212 ;
                                 wdt:P131 ?location ;
                                 wdt:P31 ?type .
            
-                        ?{entity} rdfs:label ?{entity}Label . 
+                        ?{entity} rdfs:label ?label . 
                         
-                        FILTER(LANG(?{entity}Label) = "uk")
+                        FILTER(LANG(?label) = "uk")
                 }}
         """
         try:
