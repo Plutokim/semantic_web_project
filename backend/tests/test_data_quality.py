@@ -39,16 +39,16 @@ def test_data_completeness_result(repo):
 def test_data_completeness_locations(repo):
     result = repo.get_filters_data('location')
     for i, inst in enumerate(result):
-        assert inst.get('locationId'), f"Item #{i} has no ID."
+        assert inst.get('id'), f"Item #{i} has no ID."
 
-        name = inst.get('locationLabel')
-        assert name and len(name) > 0, f"locationLabel is empty for item {inst.get('locationId')}."
+        name = inst.get('label')
+        assert name and len(name) > 0, f"Label is empty for item {inst.get('locationId')}."
 
 
 def test_data_completeness_types(repo):
     result = repo.get_filters_data('type')
     for i, inst in enumerate(result):
-        assert inst.get('typeId'), f"Item #{i} has no ID."
+        assert inst.get('id'), f"Item #{i} has no ID."
 
-        name = inst.get('typeLabel')
-        assert name and len(name) > 0, f"typeLabel is empty for item {inst.get('locationId')}."
+        name = inst.get('label')
+        assert name and len(name) > 0, f"Label is empty for item {inst.get('locationId')}."
