@@ -1,0 +1,127 @@
+@startuml Class Diagram
+
+skinparam class {
+    BackgroundColor<<datasource>> LightCoral
+    BackgroundColor<<repository>> LightBlue
+    BackgroundColor<<usecase>> LightGreen
+    BackgroundColor<<utility>> LightGray
+    BackgroundColor<<context>> Wheat
+    BackgroundColor<<frontend>> LightCyan
+}
+
+' Data Source Classes
+class Fuseki <<datasource>> {
+    -host_url: str
+    -user: str
+    -auth: HTTPBasicAuth
+    +__init__(host_url: str, user: str, password: str)
+    +list_datasets(): list
+    +create_dataset(ds_name: str, ds_type: str): void
+    +upload_ttl(ds_name: str, data: str, graph_uri: str): void
+    +exec(ds_name: str, query: str): dict
+}
+
+class Wikidata <<datasource>> {
+    -host_url: str
+    +__init__(host_url: str)
+    +exec(query: str): str
+}
+
+' Repository Classes
+class InstitutionRepository <<repository>> {
+    -client: Fuseki
+    -ds_name: str
+    -graph_uri: str
+    +__init__(client: Fuseki, ds_name: str, graph_uri: str)
+    +insert(data: str): void
+    +find_by_filter(item_id: str, search_text: str, cities: list, inst_type: list): list
+    +get_filters_data(entity: Literal['location', 'type']): list
+}
+
+class UniversalRepository <<repository>> {
+    -client: Wikidata
+    +__init__(client: Wikidata)
+    +find_institutions(): str
+}
+
+' Use Case Classes
+class InstitutionUseCase <<usecase>> {
+    -institution_repository: InstitutionRepository
+    +__init__(institution_repository: InstitutionRepository)
+    +get_all(): list
+    +search(item_id: str, search_text: str, cities: list, inst_type: list): list
+    +get_filters(entity: Literal['location', 'type']): list
+}
+
+class SyncUseCase <<usecase>> {
+    -source_repository: UniversalRepository
+    -destination_repository: InstitutionRepository
+    +__init__(source_repository: UniversalRepository, destination_repository: InstitutionRepository)
+    +start(): void
+}
+
+' Utility Classes
+class Migrator <<utility>> {
+    -client: Fuseki
+    +__init__(client: Fuseki)
+    +check_if_exists(ds_name: str): bool
+    +create_dataset(ds_name: str, ds_type: str): void
+}
+
+' Context Class
+class Context <<context>> {
+    +fuseki_client: Fuseki
+    +wikidata_client: Wikidata
+    +universal_repository: UniversalRepository
+    +institution_repository: InstitutionRepository
+    +sync_usecase: SyncUseCase
+    +institution_usecase: InstitutionUseCase
+    +__init__(config: dict)
+}
+
+' Frontend API Client Class
+class InstitutionApi <<frontend>> {
+    -baseUrl: str
+    +constructor(baseUrl: str)
+    +all(): Promise<Institution[]>
+    +search(params: SearchParams): Promise<Institution[]>
+    +getById(itemId: str): Promise<Institution | null>
+    +getFilters(): Promise<FiltersResponse>
+}
+
+' Relationships - Repositories depend on Data Sources
+InstitutionRepository --> Fuseki : uses
+UniversalRepository --> Wikidata : uses
+
+' Relationships - Use Cases depend on Repositories
+InstitutionUseCase --> InstitutionRepository : uses
+SyncUseCase --> UniversalRepository : uses
+SyncUseCase --> InstitutionRepository : uses
+
+' Relationships - Utility depends on Data Source
+Migrator --> Fuseki : uses
+
+' Relationships - Context creates and manages all
+Context --> Fuseki : creates
+Context --> Wikidata : creates
+Context --> UniversalRepository : creates
+Context --> InstitutionRepository : creates
+Context --> SyncUseCase : creates
+Context --> InstitutionUseCase : creates
+Context --> Migrator : uses
+
+' Frontend communicates with backend via HTTP (not shown as direct dependency)
+
+note right of Context
+    Dependency Injection Container
+    Initializes all components
+    and manages their lifecycle
+end note
+
+note bottom of InstitutionApi
+    Frontend API Client
+    Communicates with backend
+    via HTTP/REST API
+end note
+
+@enduml

@@ -1,0 +1,194 @@
+@startuml Package Diagram
+
+skinparam package {
+    BackgroundColor<<frontend>> LightBlue
+    BackgroundColor<<backend>> LightGreen
+    BackgroundColor<<external>> LightYellow
+}
+
+' External Systems
+package "External Systems" <<external>> {
+    package "Wikidata" {
+        [SPARQL Endpoint]
+    }
+    
+    package "Apache Jena Fuseki" {
+        [Triple Store]
+        [SPARQL Query Engine]
+    }
+}
+
+' Backend System
+package "Backend System" <<backend>> {
+    
+    package "backend.app" {
+        [Flask Application]
+        [REST API Routes]
+    }
+    
+    package "usecase" {
+        package "usecase.institution" {
+            [Institution UseCase]
+        }
+        package "usecase.sync" {
+            [Sync UseCase]
+        }
+    }
+    
+    package "repository" {
+        package "repository.institution" {
+            [Institution Repository]
+        }
+        package "repository.universal" {
+            [Universal Repository]
+        }
+    }
+    
+    package "datasource" {
+        package "datasource.fuseki" {
+            [Fuseki Client]
+        }
+        package "datasource.wikidata" {
+            [Wikidata Client]
+        }
+    }
+    
+    package "utils" {
+        package "utils.sparql" {
+            [SPARQL Parser]
+        }
+        package "utils.fuseki.migrator" {
+            [Fuseki Migrator]
+        }
+        package "utils.logger" {
+            [Logger]
+        }
+    }
+    
+    package "config" {
+        [Configuration]
+    }
+    
+    package "ctx" {
+        [Application Context]
+    }
+    
+    [Main Entry Point]
+    [Scheduler]
+}
+
+' Frontend System
+package "Frontend System" <<frontend>> {
+    
+    package "frontend.app" {
+        [Home Page]
+        [Institution Detail Page]
+        [Layout]
+        [Global Styles]
+    }
+    
+    package "components" {
+        package "components.SearchBar" {
+            [SearchBar Component]
+        }
+        package "components.FilterPanel" {
+            [FilterPanel Component]
+        }
+        package "components.FilterItem" {
+            [FilterItem Component]
+        }
+        package "components.InstitutionList" {
+            [InstitutionList Component]
+        }
+        package "components.InstitutionCard" {
+            [InstitutionCard Component]
+        }
+        package "components.StudentRangeFilter" {
+            [StudentRangeFilter Component]
+        }
+    }
+    
+    package "api" {
+        [Institution API Client]
+    }
+    
+    package "types" {
+        [Type Definitions]
+    }
+    
+    package "frontend.config" {
+        [Next.js Config]
+        [TypeScript Config]
+        [ESLint Config]
+        [Jest Config]
+        [Playwright Config]
+    }
+}
+
+' Dependencies - Backend Internal
+[Main Entry Point] --> [Application Context]
+[Main Entry Point] --> [Scheduler]
+
+[Application Context] --> [Configuration]
+[Application Context] ..> backend.app
+[Application Context] ..> usecase
+[Application Context] ..> repository
+[Application Context] ..> datasource
+[Application Context] ..> utils
+
+[Flask Application] --> [REST API Routes]
+[REST API Routes] ..> usecase
+
+[Institution UseCase] --> repository.institution
+[Sync UseCase] --> repository.institution
+[Sync UseCase] --> repository.universal
+
+[Institution Repository] --> datasource.fuseki
+[Institution Repository] --> utils.sparql
+[Universal Repository] --> datasource.wikidata
+
+[Fuseki Migrator] --> datasource.fuseki
+
+[Scheduler] ..> usecase.sync
+
+' Dependencies - Backend to External
+datasource.fuseki --> "Apache Jena Fuseki"
+datasource.wikidata --> "Wikidata"
+
+' Dependencies - Frontend Internal
+[Home Page] --> [Layout]
+[Institution Detail Page] --> [Layout]
+[Home Page] --> components
+[Institution Detail Page] --> components
+[Home Page] --> api
+[Institution Detail Page] --> api
+
+[FilterPanel Component] --> [FilterItem Component]
+[FilterPanel Component] --> [StudentRangeFilter Component]
+[InstitutionList Component] --> [InstitutionCard Component]
+
+[Institution API Client] --> types
+
+' Dependencies - Frontend to Backend
+api ..> backend.app : HTTP/REST
+
+' Logging Dependencies
+usecase ..> utils.logger
+repository ..> utils.logger
+
+note right of "External Systems"
+    Third-party services
+    and data sources
+end note
+
+note bottom of "Backend System"
+    Python/Flask application
+    Business logic and data access
+end note
+
+note bottom of "Frontend System"
+    Next.js/React application
+    User interface
+end note
+
+@enduml

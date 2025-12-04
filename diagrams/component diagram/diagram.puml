@@ -1,0 +1,132 @@
+@startuml Component Diagram
+
+!define RECTANGLE class
+
+skinparam component {
+    BackgroundColor<<frontend>> LightBlue
+    BackgroundColor<<backend>> LightGreen
+    BackgroundColor<<external>> LightYellow
+    BackgroundColor<<storage>> LightCoral
+}
+
+' External Systems
+database "Wikidata\nSPARQL Endpoint" as Wikidata <<external>> {
+}
+
+database "Apache Jena\nFuseki" as Fuseki <<storage>> {
+    folder "datasets" {
+        [institutions dataset]
+    }
+}
+
+' Backend Components
+package "Backend (Python/Flask)" <<backend>> {
+    
+    component "Flask Application" as FlaskApp {
+        [REST API Endpoints]
+    }
+    
+    package "Use Cases" {
+        [Institution UseCase]
+        [Sync UseCase]
+    }
+    
+    package "Repositories" {
+        [Institution Repository]
+        [Universal Repository]
+    }
+    
+    package "Data Sources" {
+        [Fuseki Client]
+        [Wikidata Client]
+    }
+    
+    package "Utilities" {
+        [SPARQL Parser]
+        [Fuseki Migrator]
+        [Logger]
+    }
+    
+    component "Scheduler" as Scheduler {
+        [APScheduler]
+    }
+}
+
+' Frontend Components
+package "Frontend (Next.js/React)" <<frontend>> {
+    
+    component "Pages" {
+        [Home Page]
+        [Institution Detail Page]
+    }
+    
+    component "Components" {
+        [Search Bar]
+        [Filter Panel]
+        [Institution List]
+        [Institution Card]
+        [Filter Item]
+        [Student Range Filter]
+    }
+    
+    component "API Client" {
+        [Institution API]
+    }
+}
+
+' Relationships - Frontend
+[Home Page] --> [Search Bar]
+[Home Page] --> [Filter Panel]
+[Home Page] --> [Institution List]
+[Home Page] ..> [Institution API] : uses
+
+[Institution Detail Page] ..> [Institution API] : uses
+
+[Filter Panel] --> [Filter Item]
+[Filter Panel] --> [Student Range Filter]
+
+[Institution List] --> [Institution Card]
+
+' Relationships - API
+[Institution API] ..> [REST API Endpoints] : HTTP/JSON
+
+' Relationships - Backend Internal
+[REST API Endpoints] --> [Institution UseCase]
+[REST API Endpoints] --> [Sync UseCase]
+
+[Institution UseCase] --> [Institution Repository]
+[Sync UseCase] --> [Universal Repository]
+[Sync UseCase] --> [Institution Repository]
+
+[Institution Repository] --> [Fuseki Client]
+[Institution Repository] --> [SPARQL Parser]
+[Universal Repository] --> [Wikidata Client]
+
+[Scheduler] ..> [Sync UseCase] : triggers hourly
+
+[Fuseki Migrator] --> [Fuseki Client]
+
+' Relationships - External
+[Fuseki Client] --> Fuseki : SPARQL queries
+[Wikidata Client] --> Wikidata : SPARQL queries
+
+[Institution Repository] ..> [Logger] : logs
+[Sync UseCase] ..> [Logger] : logs
+
+' Notes
+note right of Wikidata
+    External knowledge base
+    Source of institution data
+end note
+
+note right of Fuseki
+    Local triple store
+    Cached institution data
+end note
+
+note bottom of Scheduler
+    Synchronizes data from
+    Wikidata every hour
+end note
+
+@enduml

@@ -1,0 +1,121 @@
+@startuml Deployment Diagram
+
+skinparam node {
+    BackgroundColor<<device>> LightBlue
+    BackgroundColor<<server>> LightGreen
+    BackgroundColor<<external>> LightYellow
+}
+
+skinparam component {
+    BackgroundColor<<app>> Wheat
+    BackgroundColor<<runtime>> LightCyan
+    BackgroundColor<<database>> LightCoral
+}
+
+' User Device
+node "User Device" <<device>> {
+    component "Web Browser" <<runtime>> {
+        component "Next.js Application" <<app>> {
+            [React Components]
+            [Institution API Client]
+        }
+    }
+}
+
+' Application Server
+node "Application Server" <<server>> {
+    
+    node "Docker Environment" {
+        
+        node "Backend Container\n(semantic-web-backend)" {
+            component "Python 3.12" <<runtime>> {
+                component "Flask Application" <<app>> {
+                    [REST API Endpoints]
+                    [Institution UseCase]
+                    [Sync UseCase]
+                    [Repositories]
+                }
+                component "APScheduler" <<app>> {
+                    [Background Jobs]
+                }
+            }
+        }
+        
+        node "Fuseki Container\n(fuseki)" {
+            component "Apache Jena Fuseki" <<database>> {
+                database "institutions dataset" {
+                    [RDF Triple Store]
+                }
+            }
+        }
+    }
+}
+
+' External Services
+cloud "External Services" <<external>> {
+    node "Wikidata" {
+        component "Wikidata Query Service" <<database>> {
+            [SPARQL Endpoint]
+        }
+    }
+}
+
+' Connections - User to Application Server
+[React Components] ..> [Institution API Client] : uses
+[Institution API Client] --> [REST API Endpoints] : HTTP/REST\n(port 8080)
+
+' Connections - Backend to Fuseki
+[Repositories] --> [RDF Triple Store] : SPARQL queries\n(port 3030)
+[Flask Application] ..> [Apache Jena Fuseki] : uses
+
+' Connections - Backend to Wikidata
+[Repositories] --> [SPARQL Endpoint] : HTTPS\nSPARQL queries
+
+' Connections - Scheduler
+[Background Jobs] ..> [Sync UseCase] : triggers hourly
+
+' Notes
+note right of "User Device"
+    Client-side rendering
+    Modern web browser
+    (Chrome, Firefox, Safari)
+end note
+
+note right of "Backend Container\n(semantic-web-backend)"
+    Port: 8080 (external)
+    Port: 5000 (internal)
+    
+    Environment variables:
+    - FUSEKI_HOST
+    - FUSEKI_USER
+    - FUSEKI_PASSWORD
+    - WIKIDATA_HOST
+end note
+
+note right of "Fuseki Container\n(fuseki)"
+    Port: 3030
+    
+    Admin credentials:
+    - User: admin
+    - Password: admin
+    
+    Persistent volume:
+    fuseki_data
+end note
+
+note bottom of "Wikidata"
+    External service
+    Public SPARQL endpoint
+    https://query.wikidata.org
+end note
+
+note bottom of "Docker Environment"
+    Docker Compose orchestration
+    Services communication via
+    internal Docker network
+    
+    Health checks enabled
+    for Fuseki service
+end note
+
+@enduml
