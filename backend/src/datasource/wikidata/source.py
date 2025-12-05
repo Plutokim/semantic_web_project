@@ -2,10 +2,14 @@ import requests
 
 
 class Wikidata:
+    """Клієнт для роботи з Wikidata чекрез HTTP API"""
+
     def __init__(self, host_url: str):
         self.host_url = host_url
 
     def exec(self, query: str = None):
+        """Виконання SPARQL-запиту"""
+
         resp = requests.get(
             f"{self.host_url}/sparql",
             params={"query": query},
@@ -21,4 +25,6 @@ class Wikidata:
 
 
 def new_wikidata(host_url: str):
+    """Фабрична функція"""
+
     return Wikidata(host_url)

@@ -2,10 +2,14 @@ from datasource.fuseki.source import Fuseki
 
 
 class Migrator:
+    """Міграція\ініціалізація схеми даних для Fuseki"""
+
     def __init__(self, client: Fuseki):
         self.client = client
 
     def check_if_exists(self, ds_name: str):
+        """Перевірка наявності датасету з певним іменем"""
+
         datasets = []
         try:
             datasets = self.client.list_datasets()
@@ -18,6 +22,8 @@ class Migrator:
         return False
 
     def create_dataset(self, ds_name: str, ds_type: str = "mem"):
+        """Створення датасету якщо він не існує"""
+
         print(f"Creating dataset '{ds_name}'...")
         if self.check_if_exists(ds_name):
             print(f"Dataset '{ds_name}' already exists")
@@ -30,4 +36,6 @@ class Migrator:
 
 
 def new_migrator(client: Fuseki):
+    """Фабрична функція"""
+
     return Migrator(client)

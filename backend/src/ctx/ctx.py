@@ -8,6 +8,14 @@ from usecase.institution.usecase import new_institution_usecase
 
 
 class Context:
+    """
+        Контейнер залежностей:
+        - Ініціалізація Fuseki, Wikidata
+        - Створення репозиторіїв
+        - Міграція даних
+        - Стоврення use cases
+    """
+
     def __init__(self, config):
         self.fuseki_client = new_fuseki(config["fuseki_host"], config["fuseki_user"], config["fuseki_password"],
                                         )
@@ -30,4 +38,6 @@ class Context:
 
 
 def new_ctx(config):
+    """Фабрична функція"""
+
     return Context(config)

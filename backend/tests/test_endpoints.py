@@ -5,6 +5,8 @@ from flask import json
 
 @pytest.fixture
 def client():
+    """Налаштування контексту та Flask-додатку"""
+
     mock_ctx = MagicMock()
     app = new_app(mock_ctx)
     app.testing = True
@@ -14,6 +16,8 @@ def client():
 
 
 def test_filter_with_all_params(client):
+    """Тестування коректності роботи кінцевої точки /institutions з параметрками"""
+
     fake_result = [{'id': 1, 'label': 'KNU'}]
 
     client.application.mock_ctx.institution_usecase.search.return_value = fake_result
@@ -30,6 +34,8 @@ def test_filter_with_all_params(client):
 
 
 def test_filter_with_no_params(client):
+    """Тестування коректності роботи кінцевої точки /institutions без параметрками"""
+
     client.application.mock_ctx.institution_usecase.search.return_value = []
 
     response = client.get('/institutions')

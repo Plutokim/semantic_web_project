@@ -7,12 +7,16 @@ from src.config.config import config
 
 @pytest.fixture
 def repo():
+    """Надає готове джерело даних"""
+
     client = new_fuseki(config["fuseki_host"], config["fuseki_user"], config["fuseki_password"])
     repo = new_institution_repository(client)
     return repo
 
 
 def test_data_sanity(repo):
+    """Перевірка наявності даних"""
+
     result = repo.find_by_filter()
     assert len(result) != 0, "DB is empty!"
 
@@ -24,6 +28,8 @@ def test_data_sanity(repo):
 
 
 def test_data_completeness_result(repo):
+    """Перевірка повноти даних результату"""
+
     result = repo.find_by_filter()
     for inst in result:
         name = inst.get('itemLabel')
@@ -37,6 +43,8 @@ def test_data_completeness_result(repo):
 
 
 def test_data_completeness_locations(repo):
+    """Перевірка повноти даних фільтру location"""
+
     result = repo.get_filters_data('location')
     for i, inst in enumerate(result):
         assert inst.get('id'), f"Item #{i} has no ID."
@@ -46,6 +54,8 @@ def test_data_completeness_locations(repo):
 
 
 def test_data_completeness_types(repo):
+    """Перевірка повноти даних фільтру type"""
+
     result = repo.get_filters_data('type')
     for i, inst in enumerate(result):
         assert inst.get('id'), f"Item #{i} has no ID."
