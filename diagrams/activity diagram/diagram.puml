@@ -1,0 +1,55 @@
+@startuml
+|User|
+start
+:Open Website;
+:Select Filters or Enter Search Text;
+:Click "Search" Button;
+
+|Frontend|
+:Send GET Request (/institutions?search=...);
+
+|Backend|
+:Parse Query Parameters;
+:Build SPARQL Query;
+
+|Database|
+:Execute SPARQL Query;
+if (Results found?) then (Yes)
+    :Return RDF Bindings;
+else (No)
+    :Return Empty List;
+endif
+
+|Backend|
+:Parse RDF to JSON;
+:Return JSON Response;
+
+|Frontend|
+:Render Institution Cards;
+
+|User|
+:View Results List;
+if (Click on Card?) then (Yes)
+    |Frontend|
+    :Send GET Request\n(/institutions/<item_id>);
+else (No)
+    |User|
+    stop
+endif
+
+
+|Backend|
+:<b>Standard Data Retrieval</b>\n(Process ID, Fetch RDF, Parse JSON);
+note right
+  Reuses the logic from
+  the Search process
+end note
+
+|Frontend|
+:Load Institution Page;
+
+|User|
+:View Details;
+
+stop
+@enduml
